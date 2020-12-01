@@ -66,6 +66,7 @@ import static datadog.trace.api.config.TraceInstrumentationConfig.HYSTRIX_TAGS_E
 import static datadog.trace.api.config.TraceInstrumentationConfig.LOGS_MDC_TAGS_INJECTION_ENABLED;
 import static datadog.trace.api.config.TraceInstrumentationConfig.SERIALVERSIONUID_FIELD_INJECTION;
 import static datadog.trace.api.config.TracerConfig.ENABLE_TRACE_AGENT_V05;
+import static datadog.trace.api.config.TracerConfig.JMS_LEGACY_DASH_REPLACEMENT;
 
 import datadog.trace.api.config.GeneralConfig;
 import datadog.trace.api.config.JmxFetchConfig;
@@ -400,6 +401,8 @@ public class Config {
 
   @Getter private final boolean internalExitOnFailure;
 
+  @Getter private final boolean jmsLegacyDashReplacement;
+
   private final ConfigProvider configProvider;
 
   // Read order: System Properties -> Env Variables, [-> properties file], [-> default value]
@@ -641,6 +644,8 @@ public class Config {
 
     traceAnalyticsEnabled =
         configProvider.getBoolean(TRACE_ANALYTICS_ENABLED, DEFAULT_TRACE_ANALYTICS_ENABLED);
+
+    jmsLegacyDashReplacement = configProvider.getBoolean(JMS_LEGACY_DASH_REPLACEMENT, false);
 
     traceSamplingServiceRules = configProvider.getMergedMap(TRACE_SAMPLING_SERVICE_RULES);
     traceSamplingOperationRules = configProvider.getMergedMap(TRACE_SAMPLING_OPERATION_RULES);
