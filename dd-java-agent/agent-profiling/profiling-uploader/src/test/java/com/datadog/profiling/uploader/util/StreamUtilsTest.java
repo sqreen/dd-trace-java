@@ -47,15 +47,13 @@ class StreamUtilsTest {
 
   @Test
   public void readStreamNoCompression() throws IOException {
-    final byte[] bytes =
-        StreamUtils.readStream(testRecordingStream(), CONSUME_TO_BYTES);
+    final byte[] bytes = StreamUtils.readStream(testRecordingStream(), CONSUME_TO_BYTES);
     assertArrayEquals(testRecordingBytes, bytes);
   }
 
   @Test
   public void gzipStream() throws IOException {
-    final byte[] gzippedBytes =
-        StreamUtils.gzipStream(testRecordingStream(), CONSUME_TO_BYTES);
+    final byte[] gzippedBytes = StreamUtils.gzipStream(testRecordingStream(), CONSUME_TO_BYTES);
 
     assertArrayEquals(testRecordingBytes, uncompressGzip(gzippedBytes));
   }
@@ -64,8 +62,7 @@ class StreamUtilsTest {
   public void gzipAlreadyGzippedStream() throws IOException {
     final byte[] bytes =
         StreamUtils.gzipStream(
-            new ByteArrayInputStream(testRecordingGzippedBytes),
-            CONSUME_TO_BYTES);
+            new ByteArrayInputStream(testRecordingGzippedBytes), CONSUME_TO_BYTES);
 
     assertArrayEquals(testRecordingGzippedBytes, bytes);
   }
@@ -74,8 +71,7 @@ class StreamUtilsTest {
   public void gzipAlreadyZippedStream() throws IOException {
     final byte[] bytes =
         StreamUtils.gzipStream(
-            new ByteArrayInputStream(testRecordingZippedBytes),
-            CONSUME_TO_BYTES);
+            new ByteArrayInputStream(testRecordingZippedBytes), CONSUME_TO_BYTES);
 
     assertArrayEquals(testRecordingZippedBytes, bytes);
   }
@@ -83,17 +79,14 @@ class StreamUtilsTest {
   @Test
   public void gzipAlreadyLz4edStream() throws IOException {
     final byte[] bytes =
-        StreamUtils.gzipStream(
-            new ByteArrayInputStream(testRecordingLz4edBytes),
-            CONSUME_TO_BYTES);
+        StreamUtils.gzipStream(new ByteArrayInputStream(testRecordingLz4edBytes), CONSUME_TO_BYTES);
 
     assertArrayEquals(testRecordingLz4edBytes, bytes);
   }
 
   @Test
   public void lz4Stream() throws IOException {
-    final byte[] gzippedBytes =
-        StreamUtils.lz4Stream(testRecordingStream(), CONSUME_TO_BYTES);
+    final byte[] gzippedBytes = StreamUtils.lz4Stream(testRecordingStream(), CONSUME_TO_BYTES);
 
     assertArrayEquals(testRecordingBytes, uncompressLz4(gzippedBytes));
   }
@@ -102,8 +95,7 @@ class StreamUtilsTest {
   public void lz4AlreadyGzippedStream() throws IOException {
     final byte[] bytes =
         StreamUtils.lz4Stream(
-            new ByteArrayInputStream(testRecordingGzippedBytes),
-            CONSUME_TO_BYTES);
+            new ByteArrayInputStream(testRecordingGzippedBytes), CONSUME_TO_BYTES);
 
     assertArrayEquals(testRecordingGzippedBytes, bytes);
   }
@@ -111,9 +103,7 @@ class StreamUtilsTest {
   @Test
   public void lz4AlreadyZippedStream() throws IOException {
     final byte[] bytes =
-        StreamUtils.lz4Stream(
-            new ByteArrayInputStream(testRecordingZippedBytes),
-            CONSUME_TO_BYTES);
+        StreamUtils.lz4Stream(new ByteArrayInputStream(testRecordingZippedBytes), CONSUME_TO_BYTES);
 
     assertArrayEquals(testRecordingZippedBytes, bytes);
   }
@@ -121,9 +111,7 @@ class StreamUtilsTest {
   @Test
   public void lz4AlreadyLz4edStream() throws IOException {
     final byte[] bytes =
-        StreamUtils.lz4Stream(
-            new ByteArrayInputStream(testRecordingLz4edBytes),
-            CONSUME_TO_BYTES);
+        StreamUtils.lz4Stream(new ByteArrayInputStream(testRecordingLz4edBytes), CONSUME_TO_BYTES);
 
     assertArrayEquals(testRecordingLz4edBytes, bytes);
   }

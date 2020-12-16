@@ -22,7 +22,9 @@ public final class StreamUtils {
   static final int GZ_MAGIC[] = new int[] {31, 139};
 
   private static final byte[] COPY_BUFFER = new byte[8192];
-  private static final FastByteArrayOutputStream COMPRESSION_BUFFER = new FastByteArrayOutputStream(8 * 1024 * 1024); // 8MB should be sufficient for typical profiles
+  private static final FastByteArrayOutputStream COMPRESSION_BUFFER =
+      new FastByteArrayOutputStream(
+          8 * 1024 * 1024); // 8MB should be sufficient for typical profiles
 
   /**
    * Consumes array or bytes along with offset and length and turns it into something usable.
@@ -47,8 +49,8 @@ public final class StreamUtils {
    *     already compressed
    * @throws IOException
    */
-  public static <T> T gzipStream(
-      InputStream is, final BytesConsumer<T> consumer) throws IOException {
+  public static <T> T gzipStream(InputStream is, final BytesConsumer<T> consumer)
+      throws IOException {
     is = ensureMarkSupported(is);
     if (isCompressed(is)) {
       return readStream(is, consumer);
@@ -75,8 +77,8 @@ public final class StreamUtils {
    *     compressed
    * @throws IOException
    */
-  public static <T> T lz4Stream(
-      InputStream is, final BytesConsumer<T> consumer) throws IOException {
+  public static <T> T lz4Stream(InputStream is, final BytesConsumer<T> consumer)
+      throws IOException {
     is = ensureMarkSupported(is);
     if (isCompressed(is)) {
       return readStream(is, consumer);
@@ -84,11 +86,11 @@ public final class StreamUtils {
       synchronized (COMPRESSION_BUFFER) {
         try {
           try (final OutputStream zipped =
-                 new LZ4FrameOutputStream(
-                   COMPRESSION_BUFFER,
-                   LZ4FrameOutputStream.BLOCKSIZE.SIZE_64KB,
-                   // copy of the default flag(s) used by LZ4FrameOutputStream
-                   LZ4FrameOutputStream.FLG.Bits.BLOCK_INDEPENDENCE)) {
+              new LZ4FrameOutputStream(
+                  COMPRESSION_BUFFER,
+                  LZ4FrameOutputStream.BLOCKSIZE.SIZE_64KB,
+                  // copy of the default flag(s) used by LZ4FrameOutputStream
+                  LZ4FrameOutputStream.FLG.Bits.BLOCK_INDEPENDENCE)) {
             copy(is, zipped);
           }
           return COMPRESSION_BUFFER.consume(consumer);
@@ -110,8 +112,7 @@ public final class StreamUtils {
    * @return the stream data
    * @throws IOException
    */
-  public static <T> T readStream(
-      final InputStream is, final BytesConsumer<T> consumer)
+  public static <T> T readStream(final InputStream is, final BytesConsumer<T> consumer)
       throws IOException {
     synchronized (COPY_BUFFER) {
       int expectedSize = COPY_BUFFER.length;
