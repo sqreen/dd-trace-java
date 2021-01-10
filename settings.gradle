@@ -53,6 +53,8 @@ include ':dd-java-agent:testing'
 include ':utils:container-utils'
 include ':utils:histograms'
 include ':utils:test-utils'
+include ':utils:unsafe'
+include ':utils:varhandles'
 
 // smoke tests
 include ':dd-smoke-tests:agent-isolation'
@@ -215,3 +217,4 @@ def setBuildFile(project) {
 }
 
 setBuildFile(rootProject)
+
