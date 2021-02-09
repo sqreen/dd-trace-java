@@ -97,7 +97,7 @@ class ListWriterAssert {
     trace(expectedSize, false, spec)
   }
 
-  void trace(int expectedSize, boolean sortByName,
+  void trace(int expectedSize, boolean sortByNameThenResource,
              @ClosureParams(value = SimpleType, options = ['datadog.trace.agent.test.asserts.TraceAssert'])
              @DelegatesTo(value = TraceAssert, strategy = Closure.DELEGATE_FIRST) Closure spec) {
     def index = traceAssertCount.getAndIncrement()
@@ -109,7 +109,7 @@ class ListWriterAssert {
       throw new ConcurrentModificationException("ListWriter modified during assertion")
     }
     assertedIndexes.add(index)
-    assertTrace(trace(index), expectedSize, sortByName, spec)
+    assertTrace(trace(index), expectedSize, sortByNameThenResource, spec)
   }
 
   void assertTracesAllVerified() {

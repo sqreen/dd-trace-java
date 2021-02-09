@@ -42,11 +42,7 @@ class HystrixTest extends AgentTestRunner {
       }
     }
     def result = runUnderTrace("parent") {
-      try {
-        operation(command)
-      } finally {
-        blockUntilChildSpansFinished(2)
-      }
+      operation(command)
     }
     expect:
     TRANSFORMED_CLASSES_NAMES.contains("com.netflix.hystrix.strategy.concurrency.HystrixContextScheduler\$ThreadPoolWorker")
@@ -54,7 +50,21 @@ class HystrixTest extends AgentTestRunner {
     result == "Hello!"
 
     assertTraces(1) {
-      trace(3) {
+      trace(3, true) {
+        span {
+          operationName "hystrix.cmd"
+          resourceName "ExampleGroup.HystrixTest\$1.execute"
+          spanType null
+          childOf span(1)
+          errored false
+          tags {
+            "$Tags.COMPONENT" "hystrix"
+            "hystrix.command" "HystrixTest\$1"
+            "hystrix.group" "ExampleGroup"
+            "hystrix.circuit-open" false
+            defaultTags()
+          }
+        }
         span {
           operationName "parent"
           resourceName "parent"
@@ -66,24 +76,10 @@ class HystrixTest extends AgentTestRunner {
           }
         }
         span {
-          operationName "hystrix.cmd"
-          resourceName "ExampleGroup.HystrixTest\$1.execute"
-          spanType null
-          childOf span(0)
-          errored false
-          tags {
-            "$Tags.COMPONENT" "hystrix"
-            "hystrix.command" "HystrixTest\$1"
-            "hystrix.group" "ExampleGroup"
-            "hystrix.circuit-open" false
-            defaultTags()
-          }
-        }
-        span {
           operationName "trace.annotation"
           resourceName "HystrixTest\$1.tracedMethod"
           spanType null
-          childOf span(1)
+          childOf span(0)
           errored false
           tags {
             "$Tags.COMPONENT" "trace"
@@ -121,11 +117,7 @@ class HystrixTest extends AgentTestRunner {
       }
     }
     def result = runUnderTrace("parent") {
-      try {
-        return operation(command)
-      } finally {
-        blockUntilChildSpansFinished(2)
-      }
+      return operation(command)
     }
     expect:
     TRANSFORMED_CLASSES_NAMES.contains("com.netflix.hystrix.strategy.concurrency.HystrixContextScheduler\$ThreadPoolWorker")
@@ -133,22 +125,12 @@ class HystrixTest extends AgentTestRunner {
     result == "Fallback!"
 
     assertTraces(1) {
-      trace(3) {
-        span {
-          operationName "parent"
-          resourceName "parent"
-          spanType null
-          parent()
-          errored false
-          tags {
-            defaultTags()
-          }
-        }
+      trace(3, true) {
         span {
           operationName "hystrix.cmd"
           resourceName "ExampleGroup.HystrixTest\$2.execute"
           spanType null
-          childOf span(0)
+          childOf span(2)
           errored true
           tags {
             "$Tags.COMPONENT" "hystrix"
@@ -163,13 +145,23 @@ class HystrixTest extends AgentTestRunner {
           operationName "hystrix.cmd"
           resourceName "ExampleGroup.HystrixTest\$2.fallback"
           spanType null
-          childOf span(1)
+          childOf span(0)
           errored false
           tags {
             "$Tags.COMPONENT" "hystrix"
             "hystrix.command" "HystrixTest\$2"
             "hystrix.group" "ExampleGroup"
             "hystrix.circuit-open" false
+            defaultTags()
+          }
+        }
+        span {
+          operationName "parent"
+          resourceName "parent"
+          spanType null
+          parent()
+          errored false
+          tags {
             defaultTags()
           }
         }

@@ -56,9 +56,6 @@ class HystrixObservableTest extends AgentTestRunner {
           return obs
         }
       }
-      // when this is running in different threads, we don't know when the other span is done
-      // adding sleep to improve ordering consistency
-      blockUntilChildSpansFinished(2)
       return val
     }
 
@@ -67,7 +64,21 @@ class HystrixObservableTest extends AgentTestRunner {
     result == "Hello!"
 
     assertTraces(1) {
-      trace(3) {
+      trace(3, true) {
+        span {
+          operationName "hystrix.cmd"
+          resourceName "ExampleGroup.HystrixObservableTest\$1.execute"
+          spanType null
+          childOf span(1)
+          errored false
+          tags {
+            "$Tags.COMPONENT" "hystrix"
+            "hystrix.command" "HystrixObservableTest\$1"
+            "hystrix.group" "ExampleGroup"
+            "hystrix.circuit-open" false
+            defaultTags()
+          }
+        }
         span {
           operationName "parent"
           resourceName "parent"
@@ -79,24 +90,10 @@ class HystrixObservableTest extends AgentTestRunner {
           }
         }
         span {
-          operationName "hystrix.cmd"
-          resourceName "ExampleGroup.HystrixObservableTest\$1.execute"
-          spanType null
-          childOf span(0)
-          errored false
-          tags {
-            "$Tags.COMPONENT" "hystrix"
-            "hystrix.command" "HystrixObservableTest\$1"
-            "hystrix.group" "ExampleGroup"
-            "hystrix.circuit-open" false
-            defaultTags()
-          }
-        }
-        span {
           operationName "trace.annotation"
           resourceName "HystrixObservableTest\$1.tracedMethod"
           spanType null
-          childOf span(1)
+          childOf span(0)
           errored false
           tags {
             "$Tags.COMPONENT" "trace"
@@ -165,7 +162,6 @@ class HystrixObservableTest extends AgentTestRunner {
           return Observable.just("Fallback!").repeat(1)
         }
       }
-      blockUntilChildSpansFinished(2) // Improve span ordering consistency
       return val
     }
 
@@ -174,22 +170,12 @@ class HystrixObservableTest extends AgentTestRunner {
     result == "Fallback!"
 
     assertTraces(1) {
-      trace(3) {
-        span {
-          operationName "parent"
-          resourceName "parent"
-          spanType null
-          parent()
-          errored false
-          tags {
-            defaultTags()
-          }
-        }
+      trace(3, true) {
         span {
           operationName "hystrix.cmd"
           resourceName "ExampleGroup.HystrixObservableTest\$2.execute"
           spanType null
-          childOf span(0)
+          childOf span(2)
           errored true
           tags {
             "$Tags.COMPONENT" "hystrix"
@@ -204,13 +190,23 @@ class HystrixObservableTest extends AgentTestRunner {
           operationName "hystrix.cmd"
           resourceName "ExampleGroup.HystrixObservableTest\$2.fallback"
           spanType null
-          childOf span(1)
+          childOf span(0)
           errored false
           tags {
             "$Tags.COMPONENT" "hystrix"
             "hystrix.command" "HystrixObservableTest\$2"
             "hystrix.group" "ExampleGroup"
             "hystrix.circuit-open" false
+            defaultTags()
+          }
+        }
+        span {
+          operationName "parent"
+          resourceName "parent"
+          spanType null
+          parent()
+          errored false
+          tags {
             defaultTags()
           }
         }
@@ -259,28 +255,21 @@ class HystrixObservableTest extends AgentTestRunner {
 
     when:
     runUnderTrace("parent") {
-      try {
-        operation new HystrixObservableCommand<String>(asKey("FailingGroup")) {
+      operation new HystrixObservableCommand<String>(asKey("FailingGroup")) {
 
-          @Override
-          protected Observable<String> construct() {
-            def err = Observable.defer {
-              Observable.error(new IllegalArgumentException())
-            }
-            if (observeOnFn) {
-              err = err.observeOn(observeOnFn)
-            }
-            if (subscribeOnFn) {
-              err = err.subscribeOn(subscribeOnFn)
-            }
-            return err
+        @Override
+        protected Observable<String> construct() {
+          def err = Observable.defer {
+            Observable.error(new IllegalArgumentException())
           }
+          if (observeOnFn) {
+            err = err.observeOn(observeOnFn)
+          }
+          if (subscribeOnFn) {
+            err = err.subscribeOn(subscribeOnFn)
+          }
+          return err
         }
-      } finally {
-        // when this is running in different threads, we don't know when the other span is done
-        // adding sleep to improve ordering consistency
-        // Also an exception is being thrown here, so we need to wrap it in a try block.
-        blockUntilChildSpansFinished(2)
       }
     }
 
