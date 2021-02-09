@@ -46,10 +46,6 @@ public class HystrixInstrumentation extends Instrumenter.Tracing implements Excl
   @Override
   public String[] helperClassNames() {
     return new String[] {
-      "rx.DDTracingUtil",
-      "datadog.trace.instrumentation.rxjava.SpanFinishingSubscription",
-      "datadog.trace.instrumentation.rxjava.TracedSubscriber",
-      "datadog.trace.instrumentation.rxjava.TracedOnSubscribe",
       packageName + ".HystrixDecorator",
       packageName + ".HystrixDecorator$1",
       packageName + ".HystrixDecorator$ResourceNameCacheKey",
