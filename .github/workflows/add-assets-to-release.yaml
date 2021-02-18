@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download from jcenter
+        # TODO: Identify updated location from sonatype
         run: |
           wget https://oss.jfrog.org/artifactory/oss-release-local/com/datadoghq/dd-java-agent/$VERSION/dd-java-agent-$VERSION.jar
       - name: Upload to release
@@ -24,6 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download from jcenter
+        # TODO: Identify updated location from sonatype
         run: |
           wget https://oss.jfrog.org/artifactory/oss-release-local/com/datadoghq/dd-trace-api/$VERSION/dd-trace-api-$VERSION.jar
       - name: Upload to release
@@ -39,6 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download from jcenter
+        # TODO: Identify updated location from sonatype
         run: |
           wget https://oss.jfrog.org/artifactory/oss-release-local/com/datadoghq/dd-trace-ot/$VERSION/dd-trace-ot-$VERSION.jar
       - name: Upload to release
