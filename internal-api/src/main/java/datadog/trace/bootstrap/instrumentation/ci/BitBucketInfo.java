@@ -3,7 +3,7 @@ package datadog.trace.bootstrap.instrumentation.ci;
 class BitBucketInfo extends CIProviderInfo {
 
   // https://support.atlassian.com/bitbucket-cloud/docs/variables-and-secrets/
-  public static final String BITBUCKET = "BITBUCKET_COMMIT";
+  public static final String BITBUCKET = "BITBUCKET_PIPELINE_UUID";
   public static final String BITBUCKET_PROVIDER_NAME = "bitbucket";
   public static final String BITBUCKET_PIPELINE_ID = "BITBUCKET_PIPELINE_UUID";
   public static final String BITBUCKET_REPO_FULL_NAME = "BITBUCKET_REPO_FULL_NAME";
@@ -28,7 +28,7 @@ class BitBucketInfo extends CIProviderInfo {
             .withCiPipelineNumber(number)
             .withCiPipelineUrl(url)
             .withCiJorUrl(url)
-            .withCiWorkspacePath(expandTilde(System.getenv(BITBUCKET_WORKSPACE_PATH)))
+            .withCiWorkspacePath(getWorkspace())
             .withGitRepositoryUrl(
                 filterSensitiveInfo(System.getenv(BITBUCKET_GIT_REPOSITORY_URL)),
                 getLocalGitRepositoryUrl())
