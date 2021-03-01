@@ -17,12 +17,16 @@ import datadog.trace.bootstrap.security.Engine;
 import datadog.trace.bootstrap.instrumentation.api.AgentScope;
 import datadog.trace.bootstrap.instrumentation.api.AgentSpan;
 import datadog.trace.bootstrap.instrumentation.api.AgentTracer;
+
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import datadog.trace.bootstrap.instrumentation.api.Tags;
+import datadog.trace.bootstrap.security.PassthruAdviceException;
 import net.bytebuddy.asm.Advice;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.description.type.TypeDescription;
@@ -73,7 +77,8 @@ public final class TomcatServerInstrumentation extends Instrumenter.Tracing {
   public static class ServiceAdvice {
 
     @Advice.OnMethodEnter(suppress = Throwable.class)
-    public static AgentScope onService(@Advice.Argument(0) org.apache.coyote.Request req) {
+    public static AgentScope onService(@Advice.Argument(0) org.apache.coyote.Request req,
+                                       @Advice.Argument(1) org.apache.coyote.Response resp) {
 
       Object existingSpan = req.getAttribute(DD_SPAN_ATTRIBUTE);
       if (existingSpan instanceof AgentSpan) {
@@ -116,16 +121,28 @@ public final class TomcatServerInstrumentation extends Instrumenter.Tracing {
   public static class PostParseAdvice {
 
     @Advice.OnMethodExit(suppress = Throwable.class)
-    public static void afterParse(@Advice.Argument(1) Request req) {
+    public static void afterParse(@Advice.Argument(1) Request req,
+                                  @Advice.Argument(3) Response resp) {
       Object spanObj = req.getAttribute(DD_SPAN_ATTRIBUTE);
       if (spanObj instanceof AgentSpan) {
         AgentSpan span = (AgentSpan) spanObj;
         DECORATE.onConnection(span, req);
         DECORATE.onRequest(span, req);
 
-        Set<String> s = new HashSet<>();
-        s.add(Tags.HTTP_URL);
-        Engine.INSTANCE.deliverNotifications(s);
+        try {
+          Set<String> s = new HashSet<>();
+          s.add(Tags.HTTP_URL);
+          Engine.INSTANCE.deliverNotifications(s);
+        } catch (PassthruAdviceException e) {
+          resp.setStatus(403);
+          try (OutputStream os = resp.getOutputStream()) {
+            os.write("Blocked".getBytes());
+          } catch (IOException ioe) {
+            ioe.printStackTrace();
+          }
+
+          throw e;
+        }
       }
     }
   }
