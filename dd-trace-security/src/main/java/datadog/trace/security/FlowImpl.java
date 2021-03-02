@@ -19,11 +19,11 @@ public class FlowImpl implements Flow {
     @Override
     public void block(EngineRule rule, Map<String, Object> infos) {
         if (!rule.isBlock()) {
-            log.info("Rule %s cannot block; ignoring call to block()", rule);
+            log.info("Rule {} cannot block; ignoring call to block()", rule);
             return;
         }
 
-        log.info("Instruction to block from rule %s, infos %s", rule, infos);
+        log.info("Instruction to block from rule {}, infos", rule, infos);
         this.ruleAction = RuleAction.block(rule.getName(), infos);
         this.shouldInterrupt = true;
         // TODO: invoke block customization hook

@@ -92,7 +92,7 @@ public class PowerwafCallback implements Closeable, DataSubscription, DataAvaila
 
   @Override
   public void close() {
-    log.debug("Closing WAF context %s", this.ctx);
+    log.debug("Closing WAF context {}", this.ctx);
     this.ctx.close();
   }
 
@@ -114,10 +114,10 @@ public class PowerwafCallback implements Closeable, DataSubscription, DataAvaila
     Powerwaf.ActionWithData actionWithData;
     try {
       Powerwaf.Limits limits = createLimits(generalBudgetUs);
-      log.debug("Running WAF atom with %s", limits);
+      log.debug("Running WAF atom with {}", limits);
       actionWithData = ctx.runRule(rule.getName(), resolvedBas, limits);
     } catch (TimeoutPowerwafException timeout) {
-      log.debug("Powerwaf timeout for WAF atom %s (likely after PWArgs resolution)");
+      log.debug("Powerwaf timeout for WAF atom {} (likely after PWArgs resolution)", rule.getName());
       return;
     } catch (AbstractPowerwafException e) {
       log.warn("Failed running WAF atom" + rule.getName(), e);
@@ -125,7 +125,7 @@ public class PowerwafCallback implements Closeable, DataSubscription, DataAvaila
     }
 
     if (actionWithData.action == Powerwaf.Action.OK) {
-      log.debug("WAF atom " + rule.getName() + " returned OK");
+      log.debug("WAF atom {} returned OK", rule.getName());
       return;
     }
 
