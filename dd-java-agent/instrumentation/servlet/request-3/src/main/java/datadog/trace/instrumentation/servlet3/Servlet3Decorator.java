@@ -9,6 +9,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 @Slf4j
 public class Servlet3Decorator
     extends HttpServerDecorator<HttpServletRequest, HttpServletRequest, HttpServletResponse> {
@@ -53,6 +56,25 @@ public class Servlet3Decorator
   @Override
   protected int status(final HttpServletResponse httpServletResponse) {
     return httpServletResponse.getStatus();
+  }
+
+  @Override
+  protected void setStatus(HttpServletResponse httpServletResponse, int status) {
+    httpServletResponse.setStatus(status);
+  }
+
+  @Override
+  protected void setHeader(HttpServletResponse httpServletResponse, String name, String value) {
+    httpServletResponse.setHeader(name, value);
+  }
+
+  @Override
+  protected void writeBody(HttpServletResponse httpServletResponse, byte[] body) {
+    try (OutputStream os = httpServletResponse.getOutputStream()) {
+      os.write(body);
+    } catch (IOException e) {
+      log.error("Error writing response body");
+    }
   }
 
   @Override

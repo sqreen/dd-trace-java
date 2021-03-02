@@ -62,6 +62,21 @@ public class RatpackServerDecorator extends HttpServerDecorator<Request, Request
     }
   }
 
+  @Override
+  protected void setStatus(Response response, int status) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  protected void setHeader(Response response, String name, String value) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  protected void writeBody(Response response, byte[] body) {
+    throw new UnsupportedOperationException();
+  }
+
   public AgentSpan onContext(final AgentSpan span, final Context ctx) {
 
     String description = ctx.getPathBinding().getDescription();

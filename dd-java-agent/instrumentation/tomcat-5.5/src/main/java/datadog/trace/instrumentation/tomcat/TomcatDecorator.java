@@ -6,9 +6,14 @@ import datadog.trace.bootstrap.instrumentation.api.AgentSpan;
 import datadog.trace.bootstrap.instrumentation.api.URIDataAdapter;
 import datadog.trace.bootstrap.instrumentation.api.UTF8BytesString;
 import datadog.trace.bootstrap.instrumentation.decorator.HttpServerDecorator;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
+@Slf4j
 public class TomcatDecorator extends HttpServerDecorator<Request, Request, Response> {
   public static final CharSequence SERVLET_REQUEST = UTF8BytesString.create("servlet.request");
   public static final CharSequence TOMCAT_SERVER = UTF8BytesString.create("tomcat-server");
@@ -49,6 +54,25 @@ public class TomcatDecorator extends HttpServerDecorator<Request, Request, Respo
   @Override
   protected int status(final Response response) {
     return response.getStatus();
+  }
+
+  @Override
+  protected void setStatus(Response response, int status) {
+    response.setStatus(status);
+  }
+
+  @Override
+  protected void setHeader(Response response, String name, String value) {
+    response.setHeader(name, value);
+  }
+
+  @Override
+  protected void writeBody(Response response, byte[] body) {
+    try (OutputStream os = response.getOutputStream()) {
+      os.write(body);
+    } catch (IOException e) {
+      log.error("Error writing response body");
+    }
   }
 
   @Override

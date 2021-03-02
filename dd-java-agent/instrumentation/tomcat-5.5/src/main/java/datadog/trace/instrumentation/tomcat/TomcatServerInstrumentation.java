@@ -18,8 +18,6 @@ import datadog.trace.bootstrap.instrumentation.api.AgentScope;
 import datadog.trace.bootstrap.instrumentation.api.AgentSpan;
 import datadog.trace.bootstrap.instrumentation.api.AgentTracer;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -134,13 +132,7 @@ public final class TomcatServerInstrumentation extends Instrumenter.Tracing {
           s.add(Tags.HTTP_URL);
           Engine.INSTANCE.deliverNotifications(s);
         } catch (PassthruAdviceException e) {
-          resp.setStatus(403);
-          try (OutputStream os = resp.getOutputStream()) {
-            os.write("Blocked".getBytes());
-          } catch (IOException ioe) {
-            ioe.printStackTrace();
-          }
-
+          DECORATE.onBlock(resp);
           throw e;
         }
       }

@@ -8,6 +8,9 @@ import datadog.trace.bootstrap.instrumentation.api.Pair;
 import datadog.trace.bootstrap.instrumentation.api.URIDataAdapter;
 import datadog.trace.bootstrap.instrumentation.api.UTF8BytesString;
 import datadog.trace.bootstrap.instrumentation.decorator.HttpServerDecorator;
+
+import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.Method;
 import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
@@ -87,6 +90,25 @@ public class SpringWebHttpServerDecorator
   @Override
   protected int status(final HttpServletResponse httpServletResponse) {
     return httpServletResponse.getStatus();
+  }
+
+  @Override
+  protected void setStatus(HttpServletResponse httpServletResponse, int status) {
+    httpServletResponse.setStatus(status);
+  }
+
+  @Override
+  protected void setHeader(HttpServletResponse httpServletResponse, String name, String value) {
+    httpServletResponse.setHeader(name, value);
+  }
+
+  @Override
+  protected void writeBody(HttpServletResponse httpServletResponse, byte[] body) {
+    try (OutputStream os = httpServletResponse.getOutputStream()) {
+      os.write(body);
+    } catch (IOException e) {
+      log.error("Error writing response body");
+    }
   }
 
   @Override

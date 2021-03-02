@@ -51,6 +51,21 @@ public class Servlet2Decorator
   }
 
   @Override
+  protected void setStatus(Integer integer, int status) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  protected void setHeader(Integer integer, String name, String value) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  protected void writeBody(Integer integer, byte[] body) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public AgentSpan onRequest(final AgentSpan span, final HttpServletRequest request) {
     assert span != null;
     if (request != null) {

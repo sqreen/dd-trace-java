@@ -25,12 +25,14 @@ import java.util.Map;
 import java.util.Set;
 
 import datadog.trace.bootstrap.instrumentation.api.Tags;
+import datadog.trace.bootstrap.security.PassthruAdviceException;
 import net.bytebuddy.asm.Advice;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
 
 @AutoService(Instrumenter.class)
 public final class JettyServerInstrumentation extends Instrumenter.Tracing {
@@ -87,6 +89,7 @@ public final class JettyServerInstrumentation extends Instrumenter.Tracing {
     @Advice.OnMethodEnter(suppress = Throwable.class)
     public static AgentScope onEnter(@Advice.This final HttpChannel<?> channel) {
       Request req = channel.getRequest();
+      Response resp = channel.getResponse();
 
       Object existingSpan = req.getAttribute(DD_SPAN_ATTRIBUTE);
       if (existingSpan instanceof AgentSpan) {
@@ -107,9 +110,15 @@ public final class JettyServerInstrumentation extends Instrumenter.Tracing {
       req.setAttribute(CorrelationIdentifier.getTraceIdKey(), GlobalTracer.get().getTraceId());
       req.setAttribute(CorrelationIdentifier.getSpanIdKey(), GlobalTracer.get().getSpanId());
 
-      Set<String> s = new HashSet<>();
-      s.add(Tags.HTTP_URL);
-      Engine.INSTANCE.deliverNotifications(s);
+      try {
+        Set<String> s = new HashSet<>();
+        s.add(Tags.HTTP_URL);
+        Engine.INSTANCE.deliverNotifications(s);
+      } catch (
+      PassthruAdviceException e) {
+        DECORATE.onBlock(resp);
+        throw e;
+      }
 
       return scope;
     }

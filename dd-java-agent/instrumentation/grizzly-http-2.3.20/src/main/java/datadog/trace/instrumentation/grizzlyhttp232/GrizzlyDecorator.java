@@ -51,6 +51,21 @@ public class GrizzlyDecorator
   }
 
   @Override
+  protected void setStatus(HttpResponsePacket httpResponsePacket, int status) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  protected void setHeader(HttpResponsePacket httpResponsePacket, String name, String value) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  protected void writeBody(HttpResponsePacket httpResponsePacket, byte[] body) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   protected String[] instrumentationNames() {
     return new String[] {"grizzly-client", "ning"};
   }

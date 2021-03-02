@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import datadog.trace.bootstrap.instrumentation.api.Tags;
+import datadog.trace.bootstrap.security.PassthruAdviceException;
 import net.bytebuddy.asm.Advice;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.description.type.TypeDescription;
@@ -104,6 +105,7 @@ public final class JettyServerInstrumentation extends Instrumenter.Tracing {
     @Advice.OnMethodEnter(suppress = Throwable.class)
     public static AgentScope onEnter(@Advice.This final AbstractHttpConnection connection) {
       Request req = connection.getRequest();
+      Response resp = connection.getResponse();
 
       Object existingSpan = req.getAttribute(DD_SPAN_ATTRIBUTE);
       if (existingSpan instanceof AgentSpan) {
@@ -124,9 +126,14 @@ public final class JettyServerInstrumentation extends Instrumenter.Tracing {
       req.setAttribute(CorrelationIdentifier.getTraceIdKey(), GlobalTracer.get().getTraceId());
       req.setAttribute(CorrelationIdentifier.getSpanIdKey(), GlobalTracer.get().getSpanId());
 
-      Set<String> s = new HashSet<>();
-      s.add(Tags.HTTP_URL);
-      Engine.INSTANCE.deliverNotifications(s);
+      try {
+        Set<String> s = new HashSet<>();
+        s.add(Tags.HTTP_URL);
+        Engine.INSTANCE.deliverNotifications(s);
+      } catch (PassthruAdviceException e) {
+        DECORATE.onBlock(resp);
+        throw e;
+      }
 
       return scope;
     }

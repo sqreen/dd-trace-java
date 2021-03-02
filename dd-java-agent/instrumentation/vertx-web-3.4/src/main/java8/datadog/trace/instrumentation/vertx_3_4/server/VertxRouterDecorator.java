@@ -76,6 +76,21 @@ public class VertxRouterDecorator
     return httpServerResponse.getStatusCode();
   }
 
+  @Override
+  protected void setStatus(HttpServerResponse httpServerResponse, int status) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  protected void setHeader(HttpServerResponse httpServerResponse, String name, String value) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  protected void writeBody(HttpServerResponse httpServerResponse, byte[] body) {
+    throw new UnsupportedOperationException();
+  }
+
   protected static class VertxURIDataAdapter implements URIDataAdapter {
     private final RoutingContext routingContext;
 

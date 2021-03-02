@@ -70,4 +70,19 @@ public class NettyHttpServerDecorator
   protected int status(final HttpResponse httpResponse) {
     return httpResponse.getStatus().getCode();
   }
+
+  @Override
+  protected void setStatus(HttpResponse httpResponse, int status) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  protected void setHeader(HttpResponse httpResponse, String name, String value) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  protected void writeBody(HttpResponse httpResponse, byte[] body) {
+    throw new UnsupportedOperationException();
+  }
 }

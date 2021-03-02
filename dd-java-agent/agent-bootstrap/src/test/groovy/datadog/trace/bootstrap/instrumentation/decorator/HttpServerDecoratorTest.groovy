@@ -167,6 +167,21 @@ class HttpServerDecoratorTest extends ServerDecoratorTest {
       protected int status(Map m) {
         return m.status == null ? 0 : m.status
       }
+
+      @Override
+      protected void setStatus(Map map, int status) {
+        throw new UnsupportedOperationException()
+      }
+
+      @Override
+      protected void setHeader(Map map, String name, String value) {
+        throw new UnsupportedOperationException()
+      }
+
+      @Override
+      protected void writeBody(Map map, byte[] body) {
+        throw new UnsupportedOperationException()
+      }
     }
   }
 }

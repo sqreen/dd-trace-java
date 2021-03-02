@@ -54,6 +54,21 @@ public class PlayHttpServerDecorator extends HttpServerDecorator<Request, Reques
   }
 
   @Override
+  protected void setStatus(Result result, int status) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  protected void setHeader(Result result, String name, String value) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  protected void writeBody(Result result, byte[] body) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public AgentSpan onRequest(final AgentSpan span, final Request request) {
     super.onRequest(span, request);
     if (request != null) {
