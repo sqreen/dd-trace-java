@@ -128,9 +128,7 @@ public final class TomcatServerInstrumentation extends Instrumenter.Tracing {
         DECORATE.onRequest(span, req);
 
         try {
-          Set<String> s = new HashSet<>();
-          s.add(Tags.HTTP_URL);
-          Engine.INSTANCE.deliverNotifications(s);
+          Engine.INSTANCE.deliverNotifications();
         } catch (PassthruAdviceException e) {
           DECORATE.onBlock(resp);
           throw e;

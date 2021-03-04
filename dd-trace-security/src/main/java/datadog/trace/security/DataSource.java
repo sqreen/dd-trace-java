@@ -1,6 +1,8 @@
 package datadog.trace.security;
 
 import datadog.trace.bootstrap.instrumentation.api.AgentSpan;
+import datadog.trace.core.DDSpan;
+import datadog.trace.core.DDSpanContext;
 import datadog.trace.core.scopemanager.ContinuableScopeManager;
 
 import java.util.Collections;
@@ -30,22 +32,32 @@ public interface DataSource {
     }
   }
 
-  class SpanDataSource implements DataSource {
+  class RecentDataSource implements DataSource {
     private final AgentSpan span;
+    private final Set<String> addresses;
 
-    public SpanDataSource(AgentSpan span) {
+    public RecentDataSource(AgentSpan span) {
       this.span = span;
+      AgentSpan.Context ctx = span.context();
+      if (ctx instanceof DDSpanContext) {
+        this.addresses = ((DDSpanContext)ctx).recentTags();
+      } else {
+        this.addresses = Collections.emptySet();
+      }
     }
-
 
     @Override
     public <T> T getData(Address<T> address) {
-      return (T) span.getTag(address.getKey());
+      String tagName = address.getKey();
+      if (addresses.contains(tagName)) {
+        return (T) span.getTag(tagName);
+      }
+      return null;
     }
 
     @Override
     public Set<String> getAllAddressKeys() {
-      return span.getTags().keySet();
+      return this.addresses;
     }
   }
 

@@ -30,22 +30,22 @@ public class EngineImpl extends Engine {
   }
 
   @Override
-  public void deliverNotifications(Set<String> newAddressKeys) {
+  public void deliverNotifications() {
     AgentSpan activeSpan = scopeManager.activeSpan();
     if (activeSpan == null) {
       log.warn("Cannot deliver notifications without an active span");
       return;
     }
 
-    DataSource topSpanData = new DataSource.SpanDataSource(activeSpan);
+    DataSource topSpanData = new DataSource.RecentDataSource(activeSpan);
     DataSource allData = createActiveSpansDataSource();
 
     // TODO: needs to be optimized
     Flow f = new FlowImpl();
     for (DataSubscription subscription : subscriptions) {
-      if (subscription.matches(newAddressKeys, allData)) {
+      //if (subscription.matches(newAddressKeys, allData)) {
         subscription.getListener().dataAvailable(f, topSpanData, allData);
-      }
+      //}
     }
 
     if (f.hasException()) {

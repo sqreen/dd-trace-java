@@ -111,11 +111,8 @@ public final class JettyServerInstrumentation extends Instrumenter.Tracing {
       req.setAttribute(CorrelationIdentifier.getSpanIdKey(), GlobalTracer.get().getSpanId());
 
       try {
-        Set<String> s = new HashSet<>();
-        s.add(Tags.HTTP_URL);
-        Engine.INSTANCE.deliverNotifications(s);
-      } catch (
-      PassthruAdviceException e) {
+        Engine.INSTANCE.deliverNotifications();
+      } catch (PassthruAdviceException e) {
         DECORATE.onBlock(resp);
         throw e;
       }

@@ -9,10 +9,8 @@ import datadog.trace.api.sampling.PrioritySampling;
 import datadog.trace.bootstrap.instrumentation.api.AgentSpan;
 import datadog.trace.bootstrap.instrumentation.api.UTF8BytesString;
 import datadog.trace.core.taginterceptor.TagInterceptor;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 
@@ -62,6 +60,8 @@ public class DDSpanContext implements AgentSpan.Context {
    * then be wrapped around bulk operations to minimize the costly atomic operations.
    */
   private final Map<String, Object> unsafeTags;
+
+  private final Set<String> recentTagsNames = new HashSet<>();
 
   /** The service name is required, otherwise the span are dropped by the agent */
   private volatile String serviceName;
@@ -399,6 +399,7 @@ public class DDSpanContext implements AgentSpan.Context {
 
   void unsafeSetTag(final String tag, final Object value) {
     unsafeTags.put(tag, value);
+    recentTagsNames.add(tag);
   }
 
   Object getTag(final String key) {
@@ -433,6 +434,15 @@ public class DDSpanContext implements AgentSpan.Context {
       tags.put(DDTags.THREAD_NAME, threadName.toString());
       return Collections.unmodifiableMap(tags);
     }
+  }
+
+  /**
+   * @return tags names that were added since previous call of this method
+   */
+  public Set<String> recentTags() {
+    final Set<String> ret = new HashSet<>(recentTagsNames);
+    recentTagsNames.clear();
+    return ret;
   }
 
   public void processTagsAndBaggage(final MetadataConsumer consumer) {
